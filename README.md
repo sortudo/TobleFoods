@@ -7,8 +7,8 @@ Obrigatory features for this game:
   - [ ] Player can move gems up, right, left and down to form matches
   - [ ] When player matches gems with the same kind, they get destroyed and player get points for it
   - [ ] Gems will fill empty spaces with new gems
-  - [ ] At begining of the game and after every change in the board,the game must evaluate if there is possible moves and shuffle gems if needed.
-  - [ ] Every round must last 2 minutes and have a points goal that will bee increased after the conclusion of each round.
+  - [ ] At begining of the game and after every change in the board,the game must evaluate if there are possible moves and shuffle gems if needed.
+  - [ ] Every round must last 2 minutes and have a points goal that will be increased after the conclusion of each round.
   - [ ] Must have sound effects, music, sprites and particles
   
 Features that I want to implement:
