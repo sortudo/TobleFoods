@@ -21,3 +21,4 @@ Features that I want to implement:
   - [X] Start menu
   - [ ] Pause during gameplay
   - [ ] Juiciness 
+  - [ ] Indicate a possible move that a player can do
