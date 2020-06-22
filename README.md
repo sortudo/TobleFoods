@@ -1,6 +1,6 @@
 # TobleFoods!
 
-A match 3 game developed by Eleazar Fernando Braga for PlayKids technical test
+A match 3 game developed by Eleazar Fernando Braga for PlayKids' technical test
 
 Obrigatory features for this game: 
   - [ ] Grid with diferent gems
@@ -11,7 +11,7 @@ Obrigatory features for this game:
   - [ ] Every round must last 2 minutes and have a points goal that will bee increased after the conclusion of each round.
   - [ ] Must have sound effects, music, sprites and particles
   
-Features that I want to implementate:
+Features that I want to implement:
   - [ ] Create an efficient board generator
   - [ ] Click 'n slide to swap gems
   - [ ] It will only swap if there is a match
