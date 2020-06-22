@@ -18,6 +18,6 @@ Features that I want to implement:
   - [ ] Can't swap multiple gems 
   - [ ] Combo happens when gems move down after a match
   - [ ] Register the highest score of the player
-  - [ ] Start menu
+  - [X] Start menu
   - [ ] Pause during gameplay
   - [ ] Juiciness 
