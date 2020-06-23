@@ -10,6 +10,7 @@ Obrigatory features for this game:
   - [ ] At begining of the game and after every change in the board,the game must evaluate if there are possible moves and shuffle gems if needed.
   - [ ] Every round must last 2 minutes and have a points goal that will be increased after the conclusion of each round.
   - [ ] Must have sound effects, music, sprites and particles
+  - [X] The Game must work with every kind of portrait and resolution
   
 Features that I want to implement:
   - [ ] Create an efficient board generator
