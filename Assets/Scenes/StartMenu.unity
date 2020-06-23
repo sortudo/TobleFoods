@@ -637,15 +637,15 @@ MonoBehaviour:
     m_BestFit: 1
     m_MinSize: 10
     m_MaxSize: 50
-    m_Alignment: 0
+    m_Alignment: 3
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\nHow to play?\n\n\t- Swap toblefoods to match 3 with the same color and
-    earn points\n\t- Every round has 2 minutes to achieve the score goal\n\t- Combo
-    matches will give more points"
+  m_Text: "How to play?\n\n\t- Swap toblefoods to match with the same color and earn
+    points\n\t- Every round has 2 minutes to fill the score bar\n\t- Combo matches
+    will give more points"
 --- !u!222 &425889467
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1222,7 +1222,7 @@ GameObject:
   - component: {fileID: 1884129315}
   - component: {fileID: 1884129314}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: Panel_H
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
