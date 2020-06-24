@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 44e12748b282135448a76a855cbba37c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - TobleGem: {fileID: 6033809043788302237, guid: 5f54d99d0f46fe7469f54171e7b3f9c4,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
