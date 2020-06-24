@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   artwork: {fileID: 21300000, guid: 9e625009fb0dd3a46ba785d4dca4ce7d, type: 3}
   points: 100
+  tag: TobleCoconut

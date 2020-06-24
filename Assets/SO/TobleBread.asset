@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   artwork: {fileID: 21300000, guid: f6fc42f0b9081364c905cba6b653062e, type: 3}
   points: 100
+  tag: TobleBread
