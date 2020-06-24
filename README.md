@@ -11,9 +11,10 @@ Obrigatory features for this game:
   - [ ] Every round must last 2 minutes and have a points goal that will be increased after the conclusion of each round.
   - [ ] Must have sound effects, music, sprites and particles
   - [X] The Game must work with every kind of portrait and resolution
+  - [X] The board and UI must works in differenct resolutions and aspect ratio
   
 Features that I want to implement:
-  - [ ] Create an efficient board generator
+  - [X] Create an efficient board generator
   - [ ] Click 'n slide to swap gems
   - [ ] It will only swap if there is a match
   - [ ] Can't swap multiple gems 
