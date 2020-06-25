@@ -15,11 +15,17 @@ public class Board_side : MonoBehaviour
     void Awake()
     {
         if (instance == null)
-            instance = this;
+            instance = this; 
         else if (instance != this)
             Destroy(gameObject);
+
+        
+        UIManager.instance.ScreenSizeChangeEvent += CalculateSize;
+        CalculateSize();
     }
-    void Update()
+
+    // Function that calculate the size
+    public void CalculateSize()
     {
         width = board_r.rect.width;
         height = board_r.rect.height;
@@ -32,5 +38,11 @@ public class Board_side : MonoBehaviour
         {
             size = height;
         }
+    }
+
+    // Function that calculate the real position at the board
+    public Vector2 getPosition(int x, int y)
+    {
+        return new Vector2(x * size / 8, -y * size / 8);
     }
 }

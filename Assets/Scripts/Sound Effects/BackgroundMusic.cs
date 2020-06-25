@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //  Script responsible to continue play the background music during all the gameplay and stop, if needed
-public class MusicClass : MonoBehaviour
+public class BackgroundMusic: MonoBehaviour
 {
     private AudioSource _audioSource;
     private void Awake()

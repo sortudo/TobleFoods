@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6033809043788302233}
   - component: {fileID: 6033809043788302234}
-  - component: {fileID: 6033809043788302235}
   - component: {fileID: 6033809043788302236}
+  - component: {fileID: 1768178427918453988}
+  - component: {fileID: 6144061307389568459}
   m_Layer: 0
   m_Name: ToblePrefab
   m_TagString: Untagged
@@ -35,7 +36,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.387, y: 2.079}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6033809043788302234
@@ -46,7 +47,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6033809043788302237}
   m_CullTransparentMesh: 0
---- !u!114 &6033809043788302235
+--- !u!114 &6033809043788302236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6033809043788302237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 272180bb111df984080e4ad09557b8cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TobleSO: {fileID: 0}
+  x: 0
+  y: 0
+  pos: {x: 0, y: 0}
+--- !u!65 &1768178427918453988
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6033809043788302237}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 100, y: 100, z: 100}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6144061307389568459
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -75,19 +105,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6033809043788302236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6033809043788302237}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 272180bb111df984080e4ad09557b8cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TobleSO: {fileID: 0}
-  Board_r: {fileID: 0}
-  x: 0
-  y: 0

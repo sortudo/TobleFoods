@@ -10,11 +10,14 @@ public class Align_progressbar : MonoBehaviour
     void Start()
     {
         bar_r = this.GetComponent<RectTransform>();
+
+        UIManager.instance.ScreenSizeChangeEvent += Align_Progress;
+        Align_Progress();
     }
 
-    void Update()
+    public void Align_Progress()
     {
-        bar_r.anchoredPosition = new Vector2(Board_side.instance.board_r.anchoredPosition.x, Board_side.instance.size/2 + (bar_r.rect.height/2));
+        bar_r.anchoredPosition = new Vector2(0,(bar_r.rect.height / 2)) + Board_side.instance.getPosition(0, -4);
         bar_r.sizeDelta = new Vector2(Board_side.instance.size, bar_r.rect.height);
     }
 }
