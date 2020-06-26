@@ -16,7 +16,6 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private RectTransform Gem_r;
     private Image Gem_i;
     private bool updating;
-    private Vector2[] AdjacentDir = new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
     private void Start()
     {
@@ -39,25 +38,6 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         Gem_r.anchoredPosition = ResetPosition();
         Gem_r.sizeDelta = Board_side.instance.getPosition(1, -1);
-    }
-
-    // Function that returns connected adjacent TobleGems at a direction
-    private List<TobleGem> GetMatching_Adjacent(Vector2 castDir)
-    {
-        List<TobleGem> connectedDir = new List<TobleGem>();
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, castDir);
-
-        // If the first is the same TobleFood
-        if (hit.collider != null && hit.collider.gameObject.tag == gameObject.tag)
-        {
-            connectedDir.Add(hit.collider.GetComponent<TobleGem>());
-            // Check if the second at the same direction is also the same TobleFood
-            hit = Physics2D.Raycast(hit.collider.gameObject.transform.position, castDir);
-            if (hit.collider != null && hit.collider.gameObject.tag == gameObject.tag)
-                connectedDir.Add(hit.collider.GetComponent<TobleGem>());
-        }
-
-        return connectedDir;
     }
 
     // Function that updates the TobleFood real position in the game and return it

@@ -11,12 +11,13 @@ public class BoardManager : MonoBehaviour
     public GameObject TobleGem;
     public bool IsShifting { get; set; }
     public GameObject[,] tiles;
-    
-    private TobleGem TobleScript;
-    private RectTransform BoardM_r;
 
     public List<TobleGem> update;
     public List<FlippedGems> flipped;
+
+    private TobleGem TobleScript;
+    private RectTransform BoardM_r;
+    private Vector2[] AdjacentDir = new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
     void Start()
     {
@@ -50,15 +51,23 @@ public class BoardManager : MonoBehaviour
             FlippedGems flip = getFlipped(gem);
             TobleGem flippedGem = null;
 
-            // Generate the connected matching list for gem
-            List<TobleGem> connected = new List<TobleGem>(); // Raycast function will be aplied here
+            List<TobleGem> connected = new List<TobleGem>();
+            List<TobleGem> flip_connected = new List<TobleGem>();
 
             // If there was a swap in this update
             bool itFlipped = (flip != null);
             if (itFlipped) {
-                // Sum generate the connected matching list for the flipped gem with connected gem
-                // Get the TobleGem of the swapped Gem
+                // Get the connected matching list for the gem and flipped gem
+                connected = GetMatching(gem);
                 flippedGem = flip.OtherTobleGem(gem);
+                flip_connected = GetMatching(flippedGem);
+
+                // Add moved TobleFood if there is a match
+                if (connected.Count > 1)
+                    connected.Add(gem);
+                if (flip_connected.Count > 1)
+                    flip_connected.Add(flippedGem);
+                connected.AddRange(flip_connected);
             }
 
             // If there is no matches
@@ -70,17 +79,82 @@ public class BoardManager : MonoBehaviour
             }
             else // If there is matches
             {
-                // Remove TobleFood that are connected
+                // Remove matching TobleFoods that are connected
                 foreach (TobleGem tobleGem in connected){
                     if(tobleGem != null)
+                    {
                         tobleGem.gameObject.SetActive(false);
-                    
+                        // More things here in the next commit
+                    }               
                 }
             }
-
             flipped.Remove(flip);
             update.Remove(gem);
         }
+    }
+
+    // Function that search and returns matching TobleFoods, checking the horizontal and vertical Toblefoods
+    public List<TobleGem> GetMatching(TobleGem Gem)
+    {
+        List<TobleGem> connected = new List<TobleGem>();
+
+        connected.AddRange(GetMatching_Vertical(Gem));
+        connected.AddRange(GetMatching_Horizontal(Gem));
+
+        return connected;
+    }
+
+    // Function that check if there is any match at the vertical direction
+    private List<TobleGem> GetMatching_Vertical(TobleGem Gem)
+    {
+        List<TobleGem> vertical_conn = new List<TobleGem>();
+
+        // Above
+        if (Gem.y - 1 >= 0 && tiles[Gem.x, Gem.y - 1].gameObject.tag == Gem.gameObject.tag)
+        {
+            vertical_conn.Add(GetGem(Gem.x, Gem.y - 1));
+            // The top
+            if (Gem.y - 2 >= 0 && tiles[Gem.x, Gem.y - 2].gameObject.tag == Gem.gameObject.tag)
+                vertical_conn.Add(GetGem(Gem.x, Gem.y - 2));
+        }
+        // Below
+        if (Gem.y + 1 < 8 && tiles[Gem.x, Gem.y + 1].gameObject.tag == Gem.gameObject.tag)
+        {
+            vertical_conn.Add(GetGem(Gem.x, Gem.y + 1));
+            // The bottom
+            if (Gem.y + 2 < 8 && tiles[Gem.x, Gem.y + 2].gameObject.tag == Gem.gameObject.tag)
+                vertical_conn.Add(GetGem(Gem.x, Gem.y + 2));             
+        }
+        // To be a match it needs to be 2 or more
+        if (vertical_conn.Count > 1)
+            return vertical_conn;
+        else return new List<TobleGem>();
+    }
+
+    // Function that check if there is any match at the horizontal direction
+    private List<TobleGem> GetMatching_Horizontal(TobleGem Gem)
+    {
+        List<TobleGem> horizontal_conn = new List<TobleGem>();
+        // Left
+        if (Gem.x - 1 >= 0 && tiles[Gem.x - 1, Gem.y].gameObject.tag == Gem.gameObject.tag)
+        {
+            horizontal_conn.Add(GetGem(Gem.x - 1, Gem.y));
+            // Far Left
+            if (Gem.x - 2 >= 0 && tiles[Gem.x - 2, Gem.y].gameObject.tag == Gem.gameObject.tag)
+                horizontal_conn.Add(GetGem(Gem.x - 2, Gem.y));    
+        }
+        // Right
+        if (Gem.x + 1 < 8 && tiles[Gem.x + 1, Gem.y].gameObject.tag == Gem.gameObject.tag)
+        {
+            horizontal_conn.Add(GetGem(Gem.x + 1, Gem.y));
+            // Far Right
+            if (Gem.x + 2 < 8 && tiles[Gem.x + 2, Gem.y].gameObject.tag == Gem.gameObject.tag)
+                horizontal_conn.Add(GetGem(Gem.x + 2, Gem.y));        
+        }
+        // To be a match it needs to be 2 or more
+        if (horizontal_conn.Count > 1)
+            return horizontal_conn;
+        else return new List<TobleGem>();
     }
 
     // Function that align the BoardManager with the game board
@@ -125,6 +199,9 @@ public class BoardManager : MonoBehaviour
             two.x = aux_x;
             two.y = aux_y;
 
+            tiles[one.x, one.y] = one.gameObject;
+            tiles[two.x, two.y] = two.gameObject;
+
             // Update their movement
             update.Add(one);
             update.Add(two);
@@ -139,24 +216,6 @@ public class BoardManager : MonoBehaviour
             one.ResetPosition();
             update.Add(one);
         }
-    }
-
-    // Function that returns a List of connected matching TobleFoods
-    // Need to be done with raycast
-    public List<TobleGem> ConnectedGems (int x, int y)
-    {
-        /*List<TobleGem> Connected = new List<TobleGem>();
-
-        if(x + 1< 8)
-            Connected.Add(GetGem(x + 1, y));
-        else if (x - 1>= 0)
-            Connected.Add(GetGem(x - 1, y));
-        if(y + 1 < 8)
-            Connected.Add(GetGem(x, y + 1));
-        else if (y - 1>= 0)
-            Connected.Add(GetGem(x, y - 1));
-            */
-        return new List<TobleGem>();
     }
 
     // Function that informs the TobleGem of a TobleFood at the board
