@@ -33,7 +33,7 @@ public class MoveGem : MonoBehaviour
             // Four directions that you can move a toblefood
             int x = 0;
             int y = 0;
-            if(dir.magnitude > Board_side.instance.size / 32)
+            if(dir.magnitude > Board_side.instance.size / 64)
             {
                 if(adir.x > adir.y)
                 {
@@ -51,7 +51,7 @@ public class MoveGem : MonoBehaviour
             // Move the TobleFood at desired and possible position 
             Vector2 pos = moving.pos;
             if (!(x == 0 && y == 0) && outBoard(x + moving.x, y + moving.y))
-                pos += Board_side.instance.getPosition(x, y);
+                pos +=  new Vector2 (x * Board_side.instance.size/16, - y * Board_side.instance.size / 16);
             moving.MovePositionTo(pos);
         }
     }
@@ -81,7 +81,7 @@ public class MoveGem : MonoBehaviour
         // If the TobleFood is at different and possible position, it swaps with this other TobleFood
         if(!(x_i == moving.x && y_i == moving.y) && outBoard(x_i, y_i))
         {
-            BoardManager.instance.FlipGems(moving, BoardManager.instance.GetGem(x_i, y_i));
+            BoardManager.instance.FlipGems(moving, BoardManager.instance.GetGem(x_i, y_i), true);
         }
         BoardManager.instance.ResetGem(moving);
         moving = null;

@@ -34,7 +34,7 @@ public class BoardManager : MonoBehaviour
 
     void Update()
     {
-        // Update moving TobleFoods if there are still moving or not
+        // Update TobleFoods if they need to keep or stop moving
         List<TobleGem> FinishedUpdating = new List<TobleGem>();
         for (int i = 0; i < update.Count; i++)
         {
@@ -42,9 +42,43 @@ public class BoardManager : MonoBehaviour
             if (!gem.UpdateGem()) FinishedUpdating.Add(gem);
         }
 
+        // After moving the TobleFoods, it needs to check if there is or is not a match
+        // And what to do on each case
         for (int i = 0; i < FinishedUpdating.Count; i++)
         {
             TobleGem gem = FinishedUpdating[i];
+            FlippedGems flip = getFlipped(gem);
+            TobleGem flippedGem = null;
+
+            // Generate the connected matching list for gem
+            List<TobleGem> connected = new List<TobleGem>(); // Raycast function will be aplied here
+
+            // If there was a swap in this update
+            bool itFlipped = (flip != null);
+            if (itFlipped) {
+                // Sum generate the connected matching list for the flipped gem with connected gem
+                // Get the TobleGem of the swapped Gem
+                flippedGem = flip.OtherTobleGem(gem);
+            }
+
+            // If there is no matches
+            if (connected.Count == 0)
+            {
+                // And TobleFoods were swapped
+                if (itFlipped)
+                    FlipGems(gem, flippedGem, false); // Swap them back
+            }
+            else // If there is matches
+            {
+                // Remove TobleFood that are connected
+                foreach (TobleGem tobleGem in connected){
+                    if(tobleGem != null)
+                        tobleGem.gameObject.SetActive(false);
+                    
+                }
+            }
+
+            flipped.Remove(flip);
             update.Remove(gem);
         }
     }
@@ -62,26 +96,67 @@ public class BoardManager : MonoBehaviour
         update.Add(gem);
     }
 
-    // Function that swap TobleFoods
-    public void FlipGems(TobleGem one, TobleGem two)
+    // Function that search the flipped list and return the the first not null flipped's TobleGem
+    public FlippedGems getFlipped(TobleGem Gem)
+    {
+        FlippedGems flipGem = null;
+        for(int i = 0; i < flipped.Count; i++)
+        {
+            if (flipped[i].OtherTobleGem(Gem) != null){
+                flipGem = flipped[i];
+                break;
+            }
+        }
+
+        return flipGem;
+    }
+
+    // Function that swap two TobleFoods
+    public void FlipGems(TobleGem one, TobleGem two, bool flipflipped)
     {
         if (one == null) return;
         if (two != null)
         {
-            TobleSO aux = one.TobleSO;
-            one.TobleSO = two.TobleSO;
-            two.TobleSO = aux;
+            // Swap their coordinates
+            int aux_x = one.x;
+            int aux_y = one.y;
+            one.x = two.x;
+            one.y = two.y;
+            two.x = aux_x;
+            two.y = aux_y;
 
+            // Update their movement
             update.Add(one);
             update.Add(two);
 
-            flipped.Add(new FlippedGems(one, two));
-
-            one.SetGemCore();
-            two.SetGemCore();
+            // If there is no matches and the swapped toblefoods need to swap back
+            if (flipflipped)
+                flipped.Add(new FlippedGems(one, two));
         }
         else
-            ResetGem(one);
+        {
+            // Reset the position of a TobleFood and update it
+            one.ResetPosition();
+            update.Add(one);
+        }
+    }
+
+    // Function that returns a List of connected matching TobleFoods
+    // Need to be done with raycast
+    public List<TobleGem> ConnectedGems (int x, int y)
+    {
+        /*List<TobleGem> Connected = new List<TobleGem>();
+
+        if(x + 1< 8)
+            Connected.Add(GetGem(x + 1, y));
+        else if (x - 1>= 0)
+            Connected.Add(GetGem(x - 1, y));
+        if(y + 1 < 8)
+            Connected.Add(GetGem(x, y + 1));
+        else if (y - 1>= 0)
+            Connected.Add(GetGem(x, y - 1));
+            */
+        return new List<TobleGem>();
     }
 
     // Function that informs the TobleGem of a TobleFood at the board
@@ -107,7 +182,7 @@ public class BoardManager : MonoBehaviour
                 List<TobleSO> possibleSO = new List<TobleSO>();
                 possibleSO.AddRange(TobleSOs);
 
-                // Check above and left
+                // Check above and left to avoid matches
                 if(x-2 >= 0)
                 {
                     if (tiles[x - 1, y].tag == tiles[x - 2, y].tag)
@@ -133,6 +208,7 @@ public class BoardManager : MonoBehaviour
     }
 }
 
+// Class to keep track of the swapped Gems 
 [System.Serializable]
 public class FlippedGems
 {
@@ -143,5 +219,14 @@ public class FlippedGems
     {
         one = o;
         two = t;
+    }
+
+    public TobleGem OtherTobleGem(TobleGem gem)
+    {
+        if (gem == one)
+            return two;
+        else if (gem == two)
+            return one;
+        else return null;
     }
 }
