@@ -3,17 +3,17 @@
 A match 3 game developed by Eleazar Fernando Braga for PlayKids' technical test
 
 Obrigatory features for this game: 
-  - [ ] Grid with diferent gems
+  - [X] Grid with diferent gems
   - [ ] Player can move gems up, right, left and down to form matches
   - [ ] When player matches gems with the same kind, they get destroyed and player get points for it
   - [ ] Gems will fill empty spaces with new gems
   - [ ] At begining of the game and after every change in the board,the game must evaluate if there are possible moves and shuffle gems if needed.
   - [ ] Every round must last 2 minutes and have a points goal that will be increased after the conclusion of each round.
   - [ ] Must have sound effects, music, sprites and particles
-  - [X] The Game must work with every kind of portrait and resolution
+  - [X] The board and UI must works in differenct resolutions and aspect ratio
   
 Features that I want to implement:
-  - [ ] Create an efficient board generator
+  - [X] Create an efficient board generator
   - [ ] Click 'n slide to swap gems
   - [ ] It will only swap if there is a match
   - [ ] Can't swap multiple gems 
