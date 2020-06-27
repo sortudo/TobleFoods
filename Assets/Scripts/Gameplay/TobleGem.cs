@@ -32,7 +32,6 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     }
 
-
     // Function that align the TobleFood according to the current resolution and position
     public void Align_Gem()
     {
