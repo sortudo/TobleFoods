@@ -16,3 +16,4 @@ MonoBehaviour:
   points: 100
   tag: TobleApple
   Select: {fileID: 8300000, guid: d4aea8ed47bd33945b5cf4942e48cc3a, type: 3}
+  color: {r: 1, g: 0.20000002, b: 0.20392159, a: 0}

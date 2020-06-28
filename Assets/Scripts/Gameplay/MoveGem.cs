@@ -79,7 +79,7 @@ public class MoveGem : MonoBehaviour
         if (moving == null) return;
 
         // If the TobleFood is at different and possible position, it swaps with this other TobleFood
-        if(!(x_i == moving.x && y_i == moving.y) && outBoard(x_i, y_i))
+        if(!(x_i == moving.x && y_i == moving.y) && outBoard(x_i, y_i) && !(BoardManager.instance.tiles[x_i, y_i].tag == "TobleDestroyed"))
         {
             BoardManager.instance.FlipGems(moving, BoardManager.instance.GetGem(x_i, y_i), true);
         }

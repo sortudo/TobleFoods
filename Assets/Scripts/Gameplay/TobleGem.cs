@@ -11,25 +11,51 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public int x;
     public int y;
     public Vector2 pos;
-
-    private SpriteRenderer artwork;
-    private RectTransform Gem_r;
+    public RectTransform Gem_r;
+    public Animator Gem_a;
+    public Outline Gem_o;
+    
     private Image Gem_i;
+    private SpriteRenderer artwork;
     private bool updating;
 
     private void Start()
     {
         Gem_r = GetComponent<RectTransform>();
         Gem_i = GetComponent<Image>();
+        Gem_a = GetComponent<Animator>();
+        Gem_o = GetComponent<Outline>();
 
-        this.gameObject.tag = TobleSO.tag;
-        Gem_i.sprite = TobleSO.artwork;
+        UpdateInterface();
+
+        Gem_o.enabled = false;
 
         Gem_r.anchoredPosition = new Vector2(0, 0);
         
         UIManager.instance.ScreenSizeChangeEvent += Align_Gem;
         Align_Gem();
 
+    }
+
+    // Function that update SO, sprite and color's outline
+    public void UpdateInterface()
+    {
+        this.gameObject.tag = TobleSO.tag;
+        Gem_i.sprite = TobleSO.artwork;
+        Gem_o.effectColor = TobleSO.color;
+    }
+
+    // Function that Destroy this TobleFood
+    public void DestroyGem()
+    {
+        Gem_a.SetBool("DestroyIt", false);
+        Gem_i.enabled = true;
+        Gem_o.enabled = false;
+
+        // Check if all TobleFoods from the matching list were destroyed correctly
+        BoardManager.instance.destroyed.RemoveAt(0);
+        if(BoardManager.instance.destroyed.Count == 0)
+            BoardManager.instance.ApplyGravityToTobleFood();
     }
 
     // Function that align the TobleFood according to the current resolution and position
@@ -67,22 +93,16 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         
     }
 
-    // Function that moves at a set direction
-    public void MovePosition(Vector2 move)
-    {
-        Gem_r.anchoredPosition += move * Time.deltaTime * Board_side.instance.size / 64;
-    }
-
     // Function that move to a set point
     public void MovePositionTo(Vector2 move)
     {
-        Gem_r.anchoredPosition = Vector2.Lerp(Gem_r.anchoredPosition, move, Time.deltaTime * Board_side.instance.size / 64);
+        Gem_r.anchoredPosition = Vector2.Lerp(Gem_r.anchoredPosition, move, Time.deltaTime * Board_side.instance.size / 128);
     }
     
     // If the player clicks at it
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (updating) return;
+        if (updating || gameObject.tag == "TobleDestroyed") return;
         transform.SetAsLastSibling();
         MoveGem.instance.Move(this);
     }

@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 6033809043788302236}
   - component: {fileID: 1768178427918453988}
   - component: {fileID: 6144061307389568459}
+  - component: {fileID: 6790787242155245605}
+  - component: {fileID: 2301643124399981581}
   m_Layer: 0
   m_Name: ToblePrefab
   m_TagString: Untagged
@@ -63,6 +65,9 @@ MonoBehaviour:
   x: 0
   y: 0
   pos: {x: 0, y: 0}
+  Gem_r: {fileID: 0}
+  Gem_a: {fileID: 0}
+  Gem_o: {fileID: 0}
 --- !u!65 &1768178427918453988
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -105,3 +110,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!95 &6790787242155245605
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6033809043788302237}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9519ee40dec499d44872fb156ca37244, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2301643124399981581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6033809043788302237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 5, y: -5}
+  m_UseGraphicAlpha: 1

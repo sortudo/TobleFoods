@@ -9,15 +9,15 @@ public class BoardManager : MonoBehaviour
     public static BoardManager instance;
     public List<TobleSO> TobleSOs = new List<TobleSO>();
     public GameObject TobleGem;
-    public bool IsShifting { get; set; }
     public GameObject[,] tiles;
 
     public List<TobleGem> update;
     public List<FlippedGems> flipped;
+    public List<TobleGem> destroyed; // List the destroyed gems by matches
+    public int[] fills; // The number of empty spaces in which column
 
     private TobleGem TobleScript;
     private RectTransform BoardM_r;
-    private Vector2[] AdjacentDir = new Vector2[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
     void Start()
     {
@@ -26,6 +26,8 @@ public class BoardManager : MonoBehaviour
 
         update = new List<TobleGem>();
         flipped = new List<FlippedGems>();
+        destroyed = new List<TobleGem>();
+        fills = new int[8];
 
         CreateBoard();
 
@@ -50,6 +52,9 @@ public class BoardManager : MonoBehaviour
             TobleGem gem = FinishedUpdating[i];
             FlippedGems flip = getFlipped(gem);
             TobleGem flippedGem = null;
+
+            int x = gem.x;
+            fills[x] = Mathf.Clamp(fills[x] - 1, 0, 8);
 
             // Get the connected matching list for the gem
             List<TobleGem> connected = GetMatching(gem);
@@ -81,13 +86,16 @@ public class BoardManager : MonoBehaviour
             {
                 // Remove matching TobleFoods that are connected
                 foreach (TobleGem tobleGem in connected){
-                    if(tobleGem != null)
+                    if(tobleGem != null && !destroyed.Contains(tobleGem))
                     {
-                        tiles[tobleGem.x, tobleGem.y].tag = "TobleDestroyed";
-                        tiles[tobleGem.x, tobleGem.y].GetComponent<Image>().enabled = false;
+                        tobleGem.gameObject.tag = "TobleDestroyed";
+                        tobleGem.Gem_a.SetBool("DestroyIt", true);
+                        tobleGem.Gem_o.enabled = true;
+                        tobleGem.transform.SetAsLastSibling();
+
+                        destroyed.Add(tobleGem);
                     }               
                 }
-                ApplyGravityToTobleFood();
             }
             flipped.Remove(flip);
             update.Remove(gem);
@@ -95,25 +103,37 @@ public class BoardManager : MonoBehaviour
     }
 
     // Function that applies gravity so that Toblefoods can fall if there is an empty space
-    private void ApplyGravityToTobleFood()
+    public void ApplyGravityToTobleFood()
     {
+        // Search for empty spaces
         for(int x = 0; x < 8; x++)
-            for(int y = 7; y >= 1; y--)
+            for(int y = 7; y >= 0; y--)
             {
                 // Search for Destroyed TobleFoods on the game board
+                // If the search finds it, check above to fill the empty space
                 if (tiles[x, y].tag != "TobleDestroyed") continue;
                 for(int ny = (y-1); ny >= -1; ny--)
                 {
-                    if(ny >= 0)
+                    if(ny >= 0) // Searching in the grid
                     {
                         // If it is not a Destroyed TobleFood, make it fall
                         if (tiles[x, ny].tag == "TobleDestroyed") continue;
                         FlipGems(GetGem(x, y), GetGem(x, ny), false);
                     }
-                    else
+                    else // Hit the end of the game board
                     {
+                        // Create new random TobleFood to fill the empty spaces
+                        TobleSO newSO = TobleSOs[Random.Range(0, TobleSOs.Count)];
 
-                    }
+                        // Inform the characteristics of this TobleFood
+                        TobleScript = tiles[x, y].GetComponent<TobleGem>();
+                        TobleScript.TobleSO = newSO;
+                        TobleScript.UpdateInterface();
+
+                        TobleScript.Gem_r.anchoredPosition = Board_side.instance.getPosition(x, -1 - fills[x]) + new Vector2(Board_side.instance.size / 16, Board_side.instance.size / 16);
+                        ResetGem(TobleScript);
+                        fills[x]++;
+                    } 
                     break;
                 }
             }
@@ -130,7 +150,7 @@ public class BoardManager : MonoBehaviour
         return connected;
     }
 
-    // Function that check if there are any matches at the vertical direction
+    // Function that return matches at the vertical direction
     private List<TobleGem> GetMatching_Vertical(TobleGem Gem)
     {
         List<TobleGem> vertical_conn = new List<TobleGem>();
@@ -146,7 +166,7 @@ public class BoardManager : MonoBehaviour
         else return new List<TobleGem>();
     }
 
-    // Function that check if there are any matches above
+    // Function thatreturn matches above
     private List<TobleGem> GetMatching_Above(TobleGem Gem)
     {
         List<TobleGem> above_conn = new List<TobleGem>();
@@ -160,7 +180,7 @@ public class BoardManager : MonoBehaviour
         return above_conn;
     }
 
-    // Function that check if there are any matches below
+    // Function that return matches below
     private List<TobleGem> GetMatching_Below(TobleGem Gem)
     {
         List<TobleGem> below_conn = new List<TobleGem>();
@@ -174,7 +194,7 @@ public class BoardManager : MonoBehaviour
         return below_conn;
     }
 
-    // Function that check if there are any matches at the horizontal direction
+    // Function that return matches at the horizontal direction
     private List<TobleGem> GetMatching_Horizontal(TobleGem Gem)
     {
         List<TobleGem> horizontal_conn = new List<TobleGem>();
@@ -189,7 +209,7 @@ public class BoardManager : MonoBehaviour
         else return new List<TobleGem>();
     }
 
-    // Function that check if there are any matches at the left
+    // Function that return matches at the left
     private List<TobleGem> GetMatching_Left(TobleGem Gem)
     {
         List<TobleGem> left_conn = new List<TobleGem>();
@@ -203,7 +223,7 @@ public class BoardManager : MonoBehaviour
         return left_conn;
     }
 
-    // Function that check if there are any matches at the right
+    // Function that return matches at the right
     private List<TobleGem> GetMatching_Right(TobleGem Gem)
     {
         List<TobleGem> right_conn = new List<TobleGem>();

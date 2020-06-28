@@ -10,5 +10,6 @@ public class TobleSO : ScriptableObject
     public int points;
     public string tag;
     public AudioClip Select;
+    public Color color;
 
 }

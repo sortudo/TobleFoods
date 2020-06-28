@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Script to change scene
 public class Change_scene : MonoBehaviour
 {
     public Object Scene;

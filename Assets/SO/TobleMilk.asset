@@ -16,3 +16,4 @@ MonoBehaviour:
   points: 100
   tag: TobleMilk
   Select: {fileID: 8300000, guid: d4aea8ed47bd33945b5cf4942e48cc3a, type: 3}
+  color: {r: 0.2784314, g: 0.6392157, b: 0.8196079, a: 0}
