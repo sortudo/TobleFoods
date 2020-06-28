@@ -9,7 +9,7 @@ Obrigatory features for this game:
   - [X] Gems will fill empty spaces with new gems
   - [ ] At begining of the game and after every change in the board,the game must evaluate if there are possible moves and shuffle gems if needed.
   - [ ] Every round must last 2 minutes and have a points goal that will be increased after the conclusion of each round.
-  - [ ] Must have sound effects, music, sprites and particles
+  - [X] Must have sound effects, music, sprites and particles
   - [X] The board and UI must works in differenct resolutions and aspect ratio
   
 Features that I want to implement:
