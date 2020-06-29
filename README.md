@@ -20,6 +20,8 @@ Features that I want to implement:
   - [X] Combo happens when gems move down after a match
   - [X] Register the highest score of the player
   - [X] Start menu
-  - [ ] Pause during gameplay
+  - [X] Pause during gameplay
   - [X] Juiciness 
   - [ ] Indicate a possible move that a player can do
+  - [ ] Combo Narrator
+  - [ ] Show the earned points
