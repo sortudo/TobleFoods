@@ -56,7 +56,7 @@ public class MoveGem : MonoBehaviour
         }
     }
 
-    // Function that evaluate if it's a possible coordinate for the board
+    // Function that evaluate if it is a possible coordinate for the board
     public bool outBoard(int x, int y)
     {
         return ! (x > 7) &&
@@ -79,9 +79,10 @@ public class MoveGem : MonoBehaviour
         if (moving == null) return;
 
         // If the TobleFood is at different and possible position, it swaps with this other TobleFood
-        if(!(x_i == moving.x && y_i == moving.y) && outBoard(x_i, y_i) && !(BoardManager.instance.tiles[x_i, y_i].tag == "TobleDestroyed"))
+        if(!(x_i == moving.x && y_i == moving.y) && outBoard(x_i, y_i) && !(BoardManager.instance.tiles[x_i, y_i].tag == "TobleDestroyed") && !BoardManager.instance.GetGem(x_i, y_i).updating)
         {
-            BoardManager.instance.FlipGems(moving, BoardManager.instance.GetGem(x_i, y_i), true);
+            BoardManager.instance.FlipGems(moving, BoardManager.instance.GetGem(x_i, y_i), true, false);
+            BoardManager.instance.combo = 1; // Droping a TobleFood breaks the combo
         }
         BoardManager.instance.ResetGem(moving);
         moving = null;

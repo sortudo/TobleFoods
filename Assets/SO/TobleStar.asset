@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TobleStar
   m_EditorClassIdentifier: 
   artwork: {fileID: 21300000, guid: f6001f86a5318b74197182f06f2f40b1, type: 3}
-  points: 100
+  points: 20
   tag: TobleStar
   Select: {fileID: 8300000, guid: d4aea8ed47bd33945b5cf4942e48cc3a, type: 3}
-  color: {r: 0.93725497, g: 0.41960788, b: 0.8862746, a: 0}
+  color: {r: 0.93725497, g: 0.41960788, b: 0.8862746, a: 1}

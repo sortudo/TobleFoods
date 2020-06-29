@@ -6,10 +6,10 @@ using UnityEngine.SceneManagement;
 // Script to change scene
 public class Change_scene : MonoBehaviour
 {
-    public Object Scene;
+    public string Scene;
 
     public void ChangetoScene()
     {
-        SceneManager.LoadScene(sceneName: Scene.name);
+        SceneManager.LoadScene(sceneName: Scene);
     }
 }

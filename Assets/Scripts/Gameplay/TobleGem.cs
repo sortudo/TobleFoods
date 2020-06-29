@@ -7,17 +7,21 @@ using UnityEngine.EventSystems;
 // Script responsible to control each TobleFood through the gameplay
 public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
+    // TobleFood Gem
     public TobleSO TobleSO;
-    public int x;
-    public int y;
-    public Vector2 pos;
+    
+    // TobleFood components
     public RectTransform Gem_r;
     public Animator Gem_a;
     public Outline Gem_o;
-    
-    private Image Gem_i;
-    private SpriteRenderer artwork;
-    private bool updating;
+    public ParticleSystem Gem_p;
+    public Image Gem_i;
+
+    // TobleFood's Position and movement
+    public int x;
+    public int y;
+    public bool updating;
+    public Vector2 pos;
 
     private void Start()
     {
@@ -25,11 +29,11 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         Gem_i = GetComponent<Image>();
         Gem_a = GetComponent<Animator>();
         Gem_o = GetComponent<Outline>();
-
+        Gem_p = transform.GetChild(0).gameObject.GetComponent<ParticleSystem>();
+        
         UpdateInterface();
 
         Gem_o.enabled = false;
-
         Gem_r.anchoredPosition = new Vector2(0, 0);
         
         UIManager.instance.ScreenSizeChangeEvent += Align_Gem;
@@ -43,6 +47,10 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         this.gameObject.tag = TobleSO.tag;
         Gem_i.sprite = TobleSO.artwork;
         Gem_o.effectColor = TobleSO.color;
+
+        var main = Gem_p.main;
+        main.startColor = TobleSO.color;
+        Gem_p.gameObject.SetActive(false);
     }
 
     // Function that Destroy this TobleFood
@@ -55,7 +63,12 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         // Check if all TobleFoods from the matching list were destroyed correctly
         BoardManager.instance.destroyed.RemoveAt(0);
         if(BoardManager.instance.destroyed.Count == 0)
+        {
             BoardManager.instance.ApplyGravityToTobleFood();
+            StatusManager.instance.UpdateScore(BoardManager.instance.points_move);
+            BoardManager.instance.points_move = 0;
+            BoardManager.instance.destroyed = new List<TobleGem>();
+        }    
     }
 
     // Function that align the TobleFood according to the current resolution and position
@@ -63,6 +76,10 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         Gem_r.anchoredPosition = ResetPosition();
         Gem_r.sizeDelta = Board_side.instance.getPosition(1, -1);
+
+        var main = Gem_p.main;
+        main.startSize = 1.0f * Board_side.instance.size/ 2048;
+        main.startSpeed = 1.0f * Board_side.instance.size/ 256;
     }
 
     // Function that updates the TobleFood real position in the game and return it
@@ -103,13 +120,18 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         if (updating || gameObject.tag == "TobleDestroyed") return;
+
+        Gem_i.color = new Color(.5f, .5f, .5f, 1.0f);
         transform.SetAsLastSibling();
         MoveGem.instance.Move(this);
+
+        SFXManager.instance.PlaySFX(TobleSO.Select);
     }
 
     // If the player releases the click
     public void OnPointerUp(PointerEventData eventData)
     {
+        Gem_i.color = Color.white;
         MoveGem.instance.Drop();
         transform.SetAsFirstSibling();
     }

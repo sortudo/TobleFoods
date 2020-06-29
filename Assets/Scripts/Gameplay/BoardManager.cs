@@ -7,15 +7,25 @@ using UnityEngine.UI;
 public class BoardManager : MonoBehaviour
 {
     public static BoardManager instance;
-    public List<TobleSO> TobleSOs = new List<TobleSO>();
-    public GameObject TobleGem;
-    public GameObject[,] tiles;
+    public GameObject TobleGem; // Toble Prefab
+    public GameObject[,] tiles; // Board
 
-    public List<TobleGem> update;
-    public List<FlippedGems> flipped;
-    public List<TobleGem> destroyed; // List the destroyed gems by matches
+    // Lists
+    public List<TobleGem> update; // Moving TobleFoods
+    public List<FlippedGems> flipped; // Swapped TobleFoods
+    public List<TobleGem> destroyed; // Destroyed TobleFoods
+    public List<TobleSO> TobleSOs = new List<TobleSO>(); // TobleSOs
+
+    // SFX
+    public AudioClip Clear;
+    public AudioClip Swap;
+
+
     public int[] fills; // The number of empty spaces in which column
+    public int points_move; // Points in a single swap
+    public float combo; // Number of of matches in a single swap
 
+    // Private
     private TobleGem TobleScript;
     private RectTransform BoardM_r;
 
@@ -28,6 +38,8 @@ public class BoardManager : MonoBehaviour
         flipped = new List<FlippedGems>();
         destroyed = new List<TobleGem>();
         fills = new int[8];
+        points_move = 0;
+        combo = 1.0f;
 
         CreateBoard();
 
@@ -35,7 +47,7 @@ public class BoardManager : MonoBehaviour
         Align_BoardM();
     }
 
-    void Update()
+    void LateUpdate()
     {
         // Update TobleFoods if they need to keep or stop moving
         List<TobleGem> FinishedUpdating = new List<TobleGem>();
@@ -59,17 +71,18 @@ public class BoardManager : MonoBehaviour
             // Get the connected matching list for the gem
             List<TobleGem> connected = GetMatching(gem);
             List<TobleGem> flip_connected = new List<TobleGem>();
+            // If it founds a match, adds the moving TobleFood
             if (connected.Count > 1)
                 connected.Add(gem);
 
             // If there was a swap in this update
             bool itFlipped = (flip != null);
             if (itFlipped) {
-                // Get the connected matching list for the flipped gem
+                // Gets the connected matching list for the flipped gem
                 flippedGem = flip.OtherTobleGem(gem);
                 flip_connected = GetMatching(flippedGem);
 
-                // Add moved TobleFood if there is a match
+                // Adds moved TobleFood if there is a match
                 if (flip_connected.Count > 1)
                     flip_connected.Add(flippedGem);
                 connected.AddRange(flip_connected);
@@ -80,10 +93,11 @@ public class BoardManager : MonoBehaviour
             {
                 // And TobleFoods were swapped
                 if (itFlipped)
-                    FlipGems(gem, flippedGem, false); // Swap them back
+                    FlipGems(gem, flippedGem, false, false); // Swap them back
             }
-            else // If there is matches
+            else if(connected.Count > 2) // If there is matches
             {
+                SFXManager.instance.PlaySFX(Clear);
                 // Remove matching TobleFoods that are connected
                 foreach (TobleGem tobleGem in connected){
                     if(tobleGem != null && !destroyed.Contains(tobleGem))
@@ -92,10 +106,23 @@ public class BoardManager : MonoBehaviour
                         tobleGem.Gem_a.SetBool("DestroyIt", true);
                         tobleGem.Gem_o.enabled = true;
                         tobleGem.transform.SetAsLastSibling();
+                        tobleGem.Gem_p.gameObject.SetActive(true);
+
+                        // Points will be increased each round
+                        int economy = (tobleGem.TobleSO.points + ((StatusManager.instance.next_round - 1) * tobleGem.TobleSO.points));
+
+                        // If 3 or more toblefoods have already been destroyed, increase points 
+                        if (destroyed.Count > 2)
+                            points_move += ((destroyed.Count - 2) * 3 * economy) * (int)combo;
+                        else
+                            points_move += economy * (int)combo;
+
+                        combo += (float)1/connected.Count;
 
                         destroyed.Add(tobleGem);
                     }               
                 }
+                combo = Mathf.Round(combo);
             }
             flipped.Remove(flip);
             update.Remove(gem);
@@ -118,7 +145,7 @@ public class BoardManager : MonoBehaviour
                     {
                         // If it is not a Destroyed TobleFood, make it fall
                         if (tiles[x, ny].tag == "TobleDestroyed") continue;
-                        FlipGems(GetGem(x, y), GetGem(x, ny), false);
+                        FlipGems(GetGem(x, y), GetGem(x, ny), false, true);
                     }
                     else // Hit the end of the game board
                     {
@@ -171,7 +198,7 @@ public class BoardManager : MonoBehaviour
     {
         List<TobleGem> above_conn = new List<TobleGem>();
 
-        if (Gem.y - 1 >= 0 && tiles[Gem.x, Gem.y - 1].gameObject.tag == Gem.gameObject.tag)
+        if (Gem.y - 1 >= 0 && tiles[Gem.x, Gem.y - 1].gameObject.tag == Gem.gameObject.tag && !GetGem(Gem.x, Gem.y - 1).updating)
         {
             TobleGem newGem = GetGem(Gem.x, Gem.y - 1);
             above_conn.Add(newGem);
@@ -185,7 +212,7 @@ public class BoardManager : MonoBehaviour
     {
         List<TobleGem> below_conn = new List<TobleGem>();
 
-        if (Gem.y + 1 < 8 && tiles[Gem.x, Gem.y + 1].gameObject.tag == Gem.gameObject.tag)
+        if (Gem.y + 1 < 8 && tiles[Gem.x, Gem.y + 1].gameObject.tag == Gem.gameObject.tag && !GetGem(Gem.x, Gem.y + 1).updating)
         {
             TobleGem newGem = GetGem(Gem.x, Gem.y + 1);
             below_conn.Add(newGem);
@@ -214,7 +241,7 @@ public class BoardManager : MonoBehaviour
     {
         List<TobleGem> left_conn = new List<TobleGem>();
 
-        if (Gem.x - 1 >= 0 && tiles[Gem.x - 1, Gem.y].gameObject.tag == Gem.gameObject.tag)
+        if (Gem.x - 1 >= 0 && tiles[Gem.x - 1, Gem.y].gameObject.tag == Gem.gameObject.tag && !GetGem(Gem.x - 1, Gem.y).updating)
         {
             TobleGem newGem = GetGem(Gem.x - 1, Gem.y);
             left_conn.Add(newGem);
@@ -228,7 +255,7 @@ public class BoardManager : MonoBehaviour
     {
         List<TobleGem> right_conn = new List<TobleGem>();
 
-        if (Gem.x + 1 < 8 && tiles[Gem.x + 1, Gem.y].gameObject.tag == Gem.gameObject.tag)
+        if (Gem.x + 1 < 8 && tiles[Gem.x + 1, Gem.y].gameObject.tag == Gem.gameObject.tag && !GetGem(Gem.x + 1, Gem.y).updating)
         {
             TobleGem newGem = GetGem(Gem.x + 1, Gem.y);
             right_conn.Add(newGem);
@@ -266,11 +293,13 @@ public class BoardManager : MonoBehaviour
     }
 
     // Function that swap two TobleFoods
-    public void FlipGems(TobleGem one, TobleGem two, bool flipflipped)
+    public void FlipGems(TobleGem one, TobleGem two, bool flipflipped, bool gravity)
     {
         if (one == null) return;
         if (two != null)
         {
+            if(!gravity)
+                SFXManager.instance.PlaySFX(Swap);
             // Swap their coordinates
             int aux_x = one.x;
             int aux_y = one.y;

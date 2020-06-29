@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TobleOrange
   m_EditorClassIdentifier: 
   artwork: {fileID: 21300000, guid: 6e31f37b72745a947bcd381eaa211458, type: 3}
-  points: 100
+  points: 20
   tag: TobleOrange
   Select: {fileID: 8300000, guid: d4aea8ed47bd33945b5cf4942e48cc3a, type: 3}
-  color: {r: 1, g: 0.8000001, b: 0, a: 0}
+  color: {r: 1, g: 0.8000001, b: 0, a: 1}

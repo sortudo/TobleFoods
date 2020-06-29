@@ -48,12 +48,19 @@ AudioMixerController:
   m_SuspendThreshold: -80
   m_EnableSuspend: 1
   m_UpdateMode: 0
-  m_ExposedParameters: []
+  m_ExposedParameters:
+  - guid: 6a57cac1378911b42bc668dff1e924ae
+    name: Music
+  - guid: 51687f3f403bf4b488cff97256cdaffe
+    name: Narrator
+  - guid: 516ae8149d4ce8e429de8119f0cf4d36
+    name: SFX
   m_AudioMixerGroupViews:
   - guids:
     - c3a0c21e364a1b54ca15470e993ef58d
     - 9aa925fdf8d09034ead198dde90ecdb9
     - d5bf77c62da59e1478e03e8629712896
+    - 0e64d9dc5bbde12489335ba2812f3766
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
@@ -69,6 +76,7 @@ AudioMixerGroupController:
   m_Children:
   - {fileID: 7816792206291998238}
   - {fileID: -3071971938020245459}
+  - {fileID: 4727365823709132094}
   m_Volume: d75c5ab1a431a2d4584456d3a18d9695
   m_Pitch: 4ef20d41cd8e0cb48abca2a596c7feef
   m_Send: 00000000000000000000000000000000
@@ -103,7 +111,9 @@ AudioMixerSnapshotController:
   m_SnapshotID: 0e025d81bb6147c4f9340c05d52db6a0
   m_FloatValues:
     d75c5ab1a431a2d4584456d3a18d9695: 0.13552584
-    6a57cac1378911b42bc668dff1e924ae: -10.867776
+    6a57cac1378911b42bc668dff1e924ae: -0.08374828
+    516ae8149d4ce8e429de8119f0cf4d36: -0.025776558
+    51687f3f403bf4b488cff97256cdaffe: 0
   m_TransitionOverrides: {}
 --- !u!244 &665460043698881746
 AudioMixerEffectController:
@@ -119,6 +129,39 @@ AudioMixerEffectController:
   m_SendTarget: {fileID: 0}
   m_EnableWetMix: 0
   m_Bypass: 0
+--- !u!244 &1567815995328573713
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 44c175e15b4e3cc42a2a18eab657710f
+  m_EffectName: Attenuation
+  m_MixLevel: 0a2eac23813146c46a49567255a7956c
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
+--- !u!243 &4727365823709132094
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Narrator
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 0e64d9dc5bbde12489335ba2812f3766
+  m_Children: []
+  m_Volume: 51687f3f403bf4b488cff97256cdaffe
+  m_Pitch: d98fd6fe090150a48970483c108db4fa
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: 1567815995328573713}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!243 &7816792206291998238
 AudioMixerGroupController:
   m_ObjectHideFlags: 0

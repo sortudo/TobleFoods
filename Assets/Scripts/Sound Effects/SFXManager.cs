@@ -15,14 +15,13 @@ public class SFXManager : MonoBehaviour
         else if (instance != this)
             Destroy(gameObject);
 
-        DontDestroyOnLoad(transform.gameObject);
-
         instance = GetComponent<SFXManager>();
         sfx = this.GetComponent<AudioSource>();
     }
 
     public void PlaySFX(AudioClip clip)
     {
-        sfx.PlayOneShot(clip);
+        sfx.Stop();
+        sfx.PlayOneShot(clip);  
     }
 }
