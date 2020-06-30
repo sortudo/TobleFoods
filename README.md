@@ -22,6 +22,6 @@ Features that I want to implement:
   - [X] Start menu
   - [X] Pause during gameplay
   - [X] Juiciness 
-  - [X] Indicate a possible move that a player can do
+  - [X] After 10 seconds without doing any move, indicate a possible move that a player can do
   - [ ] Combo Narrator
   - [ ] Show the earned points
