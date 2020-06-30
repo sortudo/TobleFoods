@@ -4822,13 +4822,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TobleSO: {fileID: 0}
-  x: 0
-  y: 0
-  pos: {x: 0, y: 0}
   Gem_r: {fileID: 0}
   Gem_a: {fileID: 0}
   Gem_o: {fileID: 0}
-  Particle: {fileID: 0}
+  Gem_p: {fileID: 0}
+  Gem_i: {fileID: 0}
+  x: 0
+  y: 0
+  updating: 0
+  pos: {x: 0, y: 0}
 --- !u!65 &1768178427918453988
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4903,5 +4905,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
-  m_EffectDistance: {x: 5, y: -5}
+  m_EffectDistance: {x: 0, y: 0}
   m_UseGraphicAlpha: 1

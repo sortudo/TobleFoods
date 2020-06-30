@@ -23,17 +23,20 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public bool updating;
     public Vector2 pos;
 
+    private void Awake()
+    {
+        Gem_a = GetComponent<Animator>();
+        Gem_o = GetComponent<Outline>();
+    }
+
     private void Start()
     {
         Gem_r = GetComponent<RectTransform>();
         Gem_i = GetComponent<Image>();
-        Gem_a = GetComponent<Animator>();
-        Gem_o = GetComponent<Outline>();
         Gem_p = transform.GetChild(0).gameObject.GetComponent<ParticleSystem>();
         
         UpdateInterface();
 
-        Gem_o.enabled = false;
         Gem_r.anchoredPosition = new Vector2(0, 0);
         
         UIManager.instance.ScreenSizeChangeEvent += Align_Gem;
@@ -58,13 +61,15 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         Gem_a.SetBool("DestroyIt", false);
         Gem_i.enabled = true;
-        Gem_o.enabled = false;
 
         // Check if all TobleFoods from the matching list were destroyed correctly
+        // If so, Update the Board and Points
         BoardManager.instance.destroyed.RemoveAt(0);
         if(BoardManager.instance.destroyed.Count == 0)
         {
             BoardManager.instance.ApplyGravityToTobleFood();
+            BoardManager.instance.Verify_Board();
+
             StatusManager.instance.UpdateScore(BoardManager.instance.points_move);
             BoardManager.instance.points_move = 0;
             BoardManager.instance.destroyed = new List<TobleGem>();

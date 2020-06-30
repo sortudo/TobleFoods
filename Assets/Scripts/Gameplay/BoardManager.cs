@@ -9,6 +9,10 @@ public class BoardManager : MonoBehaviour
     public static BoardManager instance;
     public GameObject TobleGem; // Toble Prefab
     public GameObject[,] tiles; // Board
+    // 0 - Left | 1 - Right | 2 - Up | 3 - Down
+    // 4 - Up Left | 5 - Up Right | 6 - Down Left | 7 -Down Right
+    private Vector2[] direction = { new Vector2(-1, 0),new Vector2(1, 0), new Vector2(0, -1), new Vector2(0, 1),
+                                    new Vector2(-1,-1), new Vector2(1,-1), new Vector2(-1, 1), new Vector2(1,1)};
 
     // Lists
     public List<TobleGem> update; // Moving TobleFoods
@@ -23,13 +27,23 @@ public class BoardManager : MonoBehaviour
 
     public int[] fills; // The number of empty spaces in which column
     public int points_move; // Points in a single swap
-    public float combo; // Number of of matches in a single swap
+    public float combo; // Number of of matches in a single swap that will multiply the score
+    public Possible_Match pm; // Hint for the player
 
     // Private
     private TobleGem TobleScript;
     private RectTransform BoardM_r;
 
     void Start()
+    {
+        Instantiate();
+
+        UIManager.instance.ScreenSizeChangeEvent += Align_BoardM;
+        Align_BoardM();
+    }
+
+    // Function that set a new BoardManager
+    public void Instantiate()
     {
         instance = GetComponent<BoardManager>();
         BoardM_r = GetComponent<RectTransform>();
@@ -40,11 +54,9 @@ public class BoardManager : MonoBehaviour
         fills = new int[8];
         points_move = 0;
         combo = 1.0f;
+        pm = null;
 
         CreateBoard();
-
-        UIManager.instance.ScreenSizeChangeEvent += Align_BoardM;
-        Align_BoardM();
     }
 
     void LateUpdate()
@@ -54,7 +66,7 @@ public class BoardManager : MonoBehaviour
         for (int i = 0; i < update.Count; i++)
         {
             TobleGem gem = update[i];
-            if (!gem.UpdateGem()) FinishedUpdating.Add(gem);
+            if (gem != null && !gem.UpdateGem()) FinishedUpdating.Add(gem);
         }
 
         // After moving the TobleFoods, it needs to check if there is or is not a match
@@ -98,13 +110,17 @@ public class BoardManager : MonoBehaviour
             else if(connected.Count > 2) // If there is matches
             {
                 SFXManager.instance.PlaySFX(Clear);
+
+                // Reset Hint
+                if(pm != null)
+                    pm.NoHighlight();
+
                 // Remove matching TobleFoods that are connected
                 foreach (TobleGem tobleGem in connected){
                     if(tobleGem != null && !destroyed.Contains(tobleGem))
                     {
                         tobleGem.gameObject.tag = "TobleDestroyed";
                         tobleGem.Gem_a.SetBool("DestroyIt", true);
-                        tobleGem.Gem_o.enabled = true;
                         tobleGem.transform.SetAsLastSibling();
                         tobleGem.Gem_p.gameObject.SetActive(true);
 
@@ -165,6 +181,123 @@ public class BoardManager : MonoBehaviour
                 }
             }
     }
+
+    // Function that returns the list of possible matches of a TobleFood
+    private List<Possible_Match> Find_PossibleAtThis(TobleGem gem)
+    {
+        List<Possible_Match> p_poss = new List<Possible_Match>();
+        // Foreach neighbour
+        foreach (Vector2 dir in direction)
+        {
+            // Check if this neighbour is at range and if it has the same tag
+            Vector2 check = new Vector2(gem.x, gem.y) + dir;
+            if (CheckDir(check, gem))
+            {
+                TobleGem c = GetGem((int)check.x, (int)check.y);
+                Possible_Match p;
+                Possible_Match p_vh = new Possible_Match(gem, c);
+                // If this direction is Vertical or Horizontal
+                if (dir.x == 0 || dir.y == 0)
+                {
+                    // Check for i shape
+                    Vector2 checkUp = new Vector2(c.x, c.y) + dir * 2;    //| g | c | - | p |
+                    p = Add_Poss(checkUp, c, p_vh);
+                    if(p != null)
+                        p_poss.Add(p);
+                    // Check for L shape
+                    if(dir.x == 0)
+                    {                           
+                        Vector2 checkRight = new Vector2(c.x, c.y) + dir + new Vector2(1, 0);  //     | - | p |
+                        p = Add_Poss(checkRight, c, p_vh);                                     //     | c |    
+                        if (p != null)                                                         //     | g |
+                            p_poss.Add(p);
+
+                        Vector2 checkLeft = new Vector2(c.x, c.y) + dir + new Vector2(-1, 0);  // | p | - | 
+                        p = Add_Poss(checkLeft, c, p_vh);                                      //     | c |
+                        if (p != null)                                                         //     | g | 
+                            p_poss.Add(p);
+                    }
+                    else
+                    {
+                        Vector2 checkRight = new Vector2(c.x, c.y) + dir + new Vector2(0, 1);  // | g | c | - |
+                        p = Add_Poss(checkRight, c, p_vh);                                     //         | p |
+                        if (p != null)
+                            p_poss.Add(p);
+
+                        Vector2 checkLeft = new Vector2(c.x, c.y) + dir + new Vector2(0,-1);   //         | p |
+                        p = Add_Poss(checkLeft, c, p_vh);                                      // | g | c | - |
+                        if (p != null)
+                            p_poss.Add(p);
+                    }
+                }
+                else // If this direction is Diagonal - Search for V shape
+                {
+                    if(dir.x < 0) // Left
+                    {
+                        Vector2 checkLeft = new Vector2(gem.x, gem.y) + new Vector2(-2, 0);   //     | c |
+                        p = Add_Poss(checkLeft, gem, p_vh);                                   // | p | - | g |
+                        if (p != null)                                                        //     | c |
+                            p_poss.Add(p);
+                    }
+                    else // Right
+                    {
+                        Vector2 checkRight = new Vector2(gem.x, gem.y) + new Vector2(2, 0);   //     | c |
+                        p = Add_Poss(checkRight, gem, p_vh);                                  // | g | - | p |
+                        if (p != null)                                                        //     | c |
+                            p_poss.Add(p);
+                    }
+
+                    if(dir.y < 0) // Up
+                    {
+                        Vector2 checkUp = new Vector2(gem.x, gem.y) + new Vector2(0,-2);   //     | p |
+                        p = Add_Poss(checkUp, gem, p_vh);                                  // | c | - | c |
+                        if (p != null)                                                     //     | g |      
+                            p_poss.Add(p);
+                    }
+                    else // Down
+                    {
+                        Vector2 checkDown = new Vector2(gem.x, gem.y) + new Vector2(0, 2);   //     | g |
+                        p = Add_Poss(checkDown, gem, p_vh);                                  // | c | - | c |
+                        if (p != null)                                                       //     | p |       
+                            p_poss.Add(p);
+                    }
+                }
+            }
+        }
+        return p_poss;
+    }
+
+    // Function that returns a possible match on this direction
+    private Possible_Match Add_Poss(Vector2 check, TobleGem gem, Possible_Match p)
+    {
+        if (CheckDir(check, gem))
+        {
+            p.third = GetGem((int)check.x, (int)check.y);
+            return p;
+        }
+        return null; 
+    }
+
+    // Function that returns true if on this direction has a TobleFood with the same tag
+    private bool CheckDir(Vector2 check, TobleGem gem)
+    {
+        return (check.x >= 0 && check.x < 8 && check.y >= 0 && check.y < 8 && tiles[(int)check.x, (int)check.y].gameObject.tag == gem.gameObject.tag);
+    }
+
+    // Function that foreach TobleFood on the board find its possible matches
+    public List<Possible_Match> Possible_Matches()
+    {
+        List<Possible_Match> possible = new List<Possible_Match>();
+        for (int y = 0; y < 8; y++)
+            for(int x = 0; x < 8; x++)
+            {
+                List <Possible_Match> atThisP = Find_PossibleAtThis(GetGem(x,y));
+                if (atThisP.Count > 0)
+                    possible.AddRange(atThisP);
+            }
+
+        return possible;
+    } 
 
     // Function that search and returns matching TobleFoods, checking the horizontal and vertical Toblefoods
     public List<TobleGem> GetMatching(TobleGem Gem)
@@ -298,7 +431,8 @@ public class BoardManager : MonoBehaviour
         if (one == null) return;
         if (two != null)
         {
-            if(!gravity)
+
+            if (!gravity)
                 SFXManager.instance.PlaySFX(Swap);
             // Swap their coordinates
             int aux_x = one.x;
@@ -334,7 +468,7 @@ public class BoardManager : MonoBehaviour
     }
 
     // Function responsible to generate a correctly match 3 board
-    private void CreateBoard()
+    public void CreateBoard()
     {
         tiles = new GameObject[8, 8];
 
@@ -369,10 +503,42 @@ public class BoardManager : MonoBehaviour
                 TobleScript.TobleSO = newSO;
                 TobleScript.x = x;
                 TobleScript.y = y;
+                newTile.gameObject.tag = newSO.tag;
 
                 newTile.transform.SetParent(transform, false); // BoardManager is the parent of all TobleFoods
             }
         }
+        Verify_Board();
+    }
+
+    // Function that checks if this board has any possible moves
+    public void Verify_Board()
+    {
+        List<Possible_Match> p = Possible_Matches();
+        if (p.Count > 0) // If it does
+        {
+            // Highlight a possible match
+            if (pm != null)
+            {
+                StopAllCoroutines();
+                pm.NoHighlight();
+            }
+            StartCoroutine(p[Random.Range(0, p.Count)].Coroutine_HighlightIt());
+        }
+        else
+        {
+            // If it does not, destroy the current board and create a new one
+            DestroyBoard();
+            Instantiate();
+        }
+    }
+
+    // Function that removes from play every TobleFood on the board
+    public void DestroyBoard()
+    {
+        for (int x = 0; x < 8; x++)
+            for (int y = 0; y < 8; y++)
+                Destroy(tiles[x, y]);
     }
 }
 
@@ -396,5 +562,49 @@ public class FlippedGems
         else if (gem == two)
             return one;
         else return null;
+    }
+}
+
+// Class to keep track of the possible matches on the board
+public class Possible_Match
+{
+    public TobleGem first;
+    public TobleGem second;
+    public TobleGem third;
+
+    public Possible_Match(TobleGem f, TobleGem s)
+    {
+        first = f;
+        second = s;
+        third = null;
+    }
+
+    // Function that activates the hint for the player
+    public void HighlightIt()
+    {
+        first.Gem_a.SetBool("Highlight", true);
+        second.Gem_a.SetBool("Highlight", true);
+        third.Gem_a.SetBool("Highlight", true);
+
+        BoardManager.instance.pm = this;
+    }
+
+    // Function that waits 15 seconds to show the hint
+    public IEnumerator Coroutine_HighlightIt()
+    {
+        BoardManager.instance.pm = this;
+        yield return new WaitForSeconds(10);
+        if(BoardManager.instance.pm == this)
+            HighlightIt();
+    }
+
+    // Function that deactivates the current hint
+    public void NoHighlight()
+    {
+        first.Gem_a.SetBool("Highlight", false);
+        second.Gem_a.SetBool("Highlight", false);
+        third.Gem_a.SetBool("Highlight", false);
+
+        BoardManager.instance.pm = null;
     }
 }
