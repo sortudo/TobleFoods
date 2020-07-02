@@ -7,7 +7,7 @@ Obrigatory features for this game:
   - [X] Player can move gems up, right, left and down to form matches
   - [X] When player matches gems with the same kind, they get destroyed and player get points for it
   - [X] Gems will fill empty spaces with new gems
-  - [ ] At begining of the game and after every change in the board,the game must evaluate if there are possible moves and shuffle gems if needed.
+  - [X] At begining of the game and after every change in the board,the game must evaluate if there are possible moves and shuffle gems if needed.
   - [X] Every round must last 2 minutes and have a points goal that will be increased after the conclusion of each round.
   - [X] Must have sound effects, music, sprites and particles
   - [X] The board and UI must works in differenct resolutions and aspect ratio
@@ -22,6 +22,6 @@ Features that I want to implement:
   - [X] Start menu
   - [X] Pause during gameplay
   - [X] Juiciness 
-  - [ ] Indicate a possible move that a player can do
+  - [X] After 10 seconds without doing any move, indicate a possible move that a player can do
   - [ ] Combo Narrator
   - [ ] Show the earned points
