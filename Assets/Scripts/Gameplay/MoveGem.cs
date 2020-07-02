@@ -79,10 +79,12 @@ public class MoveGem : MonoBehaviour
         if (moving == null) return;
 
         // If the TobleFood is at different and possible position, it swaps with this other TobleFood
-        if(!(x_i == moving.x && y_i == moving.y) && outBoard(x_i, y_i) && !(BoardManager.instance.tiles[x_i, y_i].tag == "TobleDestroyed") && !BoardManager.instance.GetGem(x_i, y_i).updating)
+        // Also cannot swap with Destroyed TobleFoods or Moving TobleFoods or when the board is reseting
+        if (!(x_i == moving.x && y_i == moving.y) && outBoard(x_i, y_i) && !(BoardManager.instance.tiles[x_i, y_i].tag == "TobleDestroyed") 
+            && !BoardManager.instance.GetGem(x_i, y_i).updating && !BoardManager.instance.reseting)
         {
             BoardManager.instance.FlipGems(moving, BoardManager.instance.GetGem(x_i, y_i), true, false);
-            BoardManager.instance.combo = 1; // Droping a TobleFood breaks the combo
+            BoardManager.instance.combo = 1; // Swap a TobleFood breaks the combo
         }
         BoardManager.instance.ResetGem(moving);
         moving = null;

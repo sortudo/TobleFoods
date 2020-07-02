@@ -37,8 +37,8 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         
         UpdateInterface();
 
-        Gem_r.anchoredPosition = new Vector2(0, 0);
-        
+        pos = new Vector2(0, 0);
+
         UIManager.instance.ScreenSizeChangeEvent += Align_Gem;
         Align_Gem();
 
@@ -62,18 +62,13 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         Gem_a.SetBool("DestroyIt", false);
         Gem_i.enabled = true;
 
-        // Check if all TobleFoods from the matching list were destroyed correctly
-        // If so, Update the Board and Points
-        BoardManager.instance.destroyed.RemoveAt(0);
-        if(BoardManager.instance.destroyed.Count == 0)
-        {
-            BoardManager.instance.ApplyGravityToTobleFood();
-            BoardManager.instance.Verify_Board();
+        BoardManager.instance.DestroyGemOnBoard();
+    }
 
-            StatusManager.instance.UpdateScore(BoardManager.instance.points_move);
-            BoardManager.instance.points_move = 0;
-            BoardManager.instance.destroyed = new List<TobleGem>();
-        }    
+    // Function that will be called in the end of Disappear animation, destroying this TobleFood
+    public void DestroyGameObject()
+    {
+        Destroy(this.gameObject);
     }
 
     // Function that align the TobleFood according to the current resolution and position
@@ -82,19 +77,21 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         Gem_r.anchoredPosition = ResetPosition();
         Gem_r.sizeDelta = Board_side.instance.getPosition(1, -1);
 
+        // Sets size and speed of the particle
         var main = Gem_p.main;
         main.startSize = 1.0f * Board_side.instance.size/ 2048;
         main.startSpeed = 1.0f * Board_side.instance.size/ 256;
     }
 
-    // Function that updates the TobleFood real position in the game and return it
+    // Function that updates the TobleFood pos without updating the Rect Transform
     public Vector2 ResetPosition()
     {
         pos = new Vector2(Board_side.instance.size / 16, Board_side.instance.size / 16) + Board_side.instance.getPosition(x, y);
         return pos;
     }
 
-    // Function that checks if it is moving or not
+    // Function that checks if this TobleFood is moving or not
+    // Return a true if still needs to update or false if does not
     public bool UpdateGem()
     {
         ResetPosition();
@@ -115,7 +112,7 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         
     }
 
-    // Function that move to a set point
+    // Function that move to a point
     public void MovePositionTo(Vector2 move)
     {
         Gem_r.anchoredPosition = Vector2.Lerp(Gem_r.anchoredPosition, move, Time.deltaTime * Board_side.instance.size / 128);
@@ -126,7 +123,7 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (updating || gameObject.tag == "TobleDestroyed") return;
 
-        Gem_i.color = new Color(.5f, .5f, .5f, 1.0f);
+        Gem_i.color = new Color(.5f, .5f, .5f, 1.0f); // Color of pressed TobleFood
         transform.SetAsLastSibling();
         MoveGem.instance.Move(this);
 

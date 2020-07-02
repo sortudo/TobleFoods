@@ -8,9 +8,9 @@ public class Board_side : MonoBehaviour
     public RectTransform board_r;
     public float size;
     public static Board_side instance = null;
-
-    private float width;
-    private float height;
+    public RectTransform bar_r;
+    public float width;
+    public float height;
 
     void Awake()
     {

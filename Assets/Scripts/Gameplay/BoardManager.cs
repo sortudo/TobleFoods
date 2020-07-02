@@ -16,6 +16,7 @@ public class BoardManager : MonoBehaviour
 
     // Lists
     public List<TobleGem> update; // Moving TobleFoods
+    public List<TobleGem> FinishedUpdating; // TobleFoods in this frame that stopped moving
     public List<FlippedGems> flipped; // Swapped TobleFoods
     public List<TobleGem> destroyed; // Destroyed TobleFoods
     public List<TobleSO> TobleSOs = new List<TobleSO>(); // TobleSOs
@@ -23,12 +24,16 @@ public class BoardManager : MonoBehaviour
     // SFX
     public AudioClip Clear;
     public AudioClip Swap;
+    public AudioClip Shuffle;
 
 
     public int[] fills; // The number of empty spaces in which column
     public int points_move; // Points in a single swap
     public float combo; // Number of of matches in a single swap that will multiply the score
     public Possible_Match pm; // Hint for the player
+    public Vector2 max = new Vector2(-Mathf.Infinity, -Mathf.Infinity); // Max position of the match
+    public Vector2 min = new Vector2(Mathf.Infinity, Mathf.Infinity); // Min position of the match
+    public bool reseting; // Check if the board if reseting
 
     // Private
     private TobleGem TobleScript;
@@ -36,15 +41,7 @@ public class BoardManager : MonoBehaviour
 
     void Start()
     {
-        Instantiate();
 
-        UIManager.instance.ScreenSizeChangeEvent += Align_BoardM;
-        Align_BoardM();
-    }
-
-    // Function that set a new BoardManager
-    public void Instantiate()
-    {
         instance = GetComponent<BoardManager>();
         BoardM_r = GetComponent<RectTransform>();
 
@@ -55,21 +52,25 @@ public class BoardManager : MonoBehaviour
         points_move = 0;
         combo = 1.0f;
         pm = null;
+        reseting = false;
 
         CreateBoard();
+
+        UIManager.instance.ScreenSizeChangeEvent += Align_BoardM;
+        Align_BoardM();
     }
 
     void LateUpdate()
     {
         // Update TobleFoods if they need to keep or stop moving
-        List<TobleGem> FinishedUpdating = new List<TobleGem>();
+        FinishedUpdating = new List<TobleGem>();
         for (int i = 0; i < update.Count; i++)
         {
             TobleGem gem = update[i];
             if (gem != null && !gem.UpdateGem()) FinishedUpdating.Add(gem);
         }
 
-        // After moving the TobleFoods, it needs to check if there is or is not a match
+        // After moving the all the TobleFoods, it needs to check if there is or is not a match
         // And what to do on each case
         for (int i = 0; i < FinishedUpdating.Count; i++)
         {
@@ -77,6 +78,7 @@ public class BoardManager : MonoBehaviour
             FlippedGems flip = getFlipped(gem);
             TobleGem flippedGem = null;
 
+            // Board's empty spaces that will need to fill in
             int x = gem.x;
             fills[x] = Mathf.Clamp(fills[x] - 1, 0, 8);
 
@@ -105,7 +107,14 @@ public class BoardManager : MonoBehaviour
             {
                 // And TobleFoods were swapped
                 if (itFlipped)
+                {
                     FlipGems(gem, flippedGem, false, false); // Swap them back
+                    // Reset hint
+                    pm.DyingLight();
+                    StopAllCoroutines();
+                    StartCoroutine(pm.Coroutine_HighlightIt());
+                }
+                    
             }
             else if(connected.Count > 2) // If there is matches
             {
@@ -115,7 +124,7 @@ public class BoardManager : MonoBehaviour
                 if(pm != null)
                     pm.NoHighlight();
 
-                // Remove matching TobleFoods that are connected
+                // Destroy matching TobleFoods that are connected
                 foreach (TobleGem tobleGem in connected){
                     if(tobleGem != null && !destroyed.Contains(tobleGem))
                     {
@@ -127,13 +136,13 @@ public class BoardManager : MonoBehaviour
                         // Points will be increased each round
                         int economy = (tobleGem.TobleSO.points + ((StatusManager.instance.next_round - 1) * tobleGem.TobleSO.points));
 
-                        // If 3 or more toblefoods have already been destroyed, increase points 
+                        // If 3 or more toblefoods have already been destroyed, triple the points earned for each next destroyed
                         if (destroyed.Count > 2)
-                            points_move += ((destroyed.Count - 2) * 3 * economy) * (int)combo;
+                            points_move += (3 * economy) * (int)combo;
                         else
                             points_move += economy * (int)combo;
 
-                        combo += (float)1/connected.Count;
+                        combo += (float)1/connected.Count; // Multiply points for each match done in one single swap
 
                         destroyed.Add(tobleGem);
                     }               
@@ -143,6 +152,86 @@ public class BoardManager : MonoBehaviour
             flipped.Remove(flip);
             update.Remove(gem);
         }
+    }
+
+    // Function that destroy a TobleFood after a match
+    public void DestroyGemOnBoard()
+    {
+        // Calculate the points UI position that will pop-up showing the match score
+        // Find the min and max positions 
+        if (destroyed[0].Gem_r.anchoredPosition.x < min.x)
+            min.x = destroyed[0].Gem_r.anchoredPosition.x;
+        else if (destroyed[0].Gem_r.anchoredPosition.x > max.x)
+            max.x = destroyed[0].Gem_r.anchoredPosition.x;
+
+        if (destroyed[0].Gem_r.anchoredPosition.y < min.y)
+            min.y = destroyed[0].Gem_r.anchoredPosition.y;
+        else if (destroyed[0].Gem_r.anchoredPosition.y > max.y)
+            max.y = destroyed[0].Gem_r.anchoredPosition.y;
+
+        // Check if all TobleFoods from the matching list were destroyed correctly
+        // If so, Update the Board and Points
+        destroyed.RemoveAt(0);
+        if (destroyed.Count == 0)
+        {
+
+            ApplyGravityToTobleFood();
+            StatusManager.instance.UpdateScore(points_move);
+
+            // Points UI will pop-up between max and min
+            Points_UI.instance.CreatePointsUI((max + min) / 2, points_move);
+            points_move = 0;
+
+            // Reset variables for the next movement
+            max = new Vector2(-Mathf.Infinity, -Mathf.Infinity);
+            min = new Vector2(Mathf.Infinity, Mathf.Infinity);
+            destroyed = new List<TobleGem>();
+
+            Verify_Board();
+        }
+    }
+
+    // Function that checks if this board has any possible moves
+    public void Verify_Board()
+    {
+        List<Possible_Match> p = Possible_Matches();
+        if (p.Count > 0) // If it does
+        {
+            // Highlight a possible match
+            if (pm != null)
+            {
+                StopAllCoroutines();
+                pm.NoHighlight();
+            }
+            StartCoroutine(p[Random.Range(0, p.Count)].Coroutine_HighlightIt());
+        }
+        else
+        {
+            // If it does not, destroy the current board and create a new one
+            StartCoroutine(ResetBoard());
+        }
+    }
+
+    public IEnumerator ResetBoard()
+    {
+        reseting = true;
+        pm = null;
+        yield return new WaitForSeconds(1);
+        StatusSound.instance.PlayStatus(Shuffle);
+        DestroyBoard();
+        yield return new WaitForSeconds(1);
+        CreateBoard();
+        reseting = false;
+    }
+
+    // Function that removes from play every TobleFood on the board
+    public void DestroyBoard()
+    {
+        for (int x = 0; x < 8; x++)
+            for (int y = 0; y < 8; y++)
+            {
+                GetGem(x, y).Gem_a.SetBool("Disappear", true);
+            }
     }
 
     // Function that applies gravity so that Toblefoods can fall if there is an empty space
@@ -165,7 +254,7 @@ public class BoardManager : MonoBehaviour
                     }
                     else // Hit the end of the game board
                     {
-                        // Create new random TobleFood to fill the empty spaces
+                        // Create new random TobleFood to fill the destroyed TobleFood
                         TobleSO newSO = TobleSOs[Random.Range(0, TobleSOs.Count)];
 
                         // Inform the characteristics of this TobleFood
@@ -173,6 +262,7 @@ public class BoardManager : MonoBehaviour
                         TobleScript.TobleSO = newSO;
                         TobleScript.UpdateInterface();
 
+                        // Change its position to fall at the top of the board
                         TobleScript.Gem_r.anchoredPosition = Board_side.instance.getPosition(x, -1 - fills[x]) + new Vector2(Board_side.instance.size / 16, Board_side.instance.size / 16);
                         ResetGem(TobleScript);
                         fills[x]++;
@@ -284,7 +374,7 @@ public class BoardManager : MonoBehaviour
         return (check.x >= 0 && check.x < 8 && check.y >= 0 && check.y < 8 && tiles[(int)check.x, (int)check.y].gameObject.tag == gem.gameObject.tag);
     }
 
-    // Function that foreach TobleFood on the board find its possible matches
+    // Function that for each TobleFood on the board find its possible matches
     public List<Possible_Match> Possible_Matches()
     {
         List<Possible_Match> possible = new List<Possible_Match>();
@@ -400,7 +490,7 @@ public class BoardManager : MonoBehaviour
     // Function that align the BoardManager with the game board
     public void Align_BoardM()
     {
-        BoardM_r.anchoredPosition = Board_side.instance.getPosition(-4, -3); 
+        BoardM_r.anchoredPosition = Board_side.instance.getPosition(-4, -3);
     }
 
     // Function that reset the position of a TobleFood and update it
@@ -461,7 +551,7 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    // Function that informs the TobleGem of a TobleFood at the board
+    // Function that informs the TobleGem of a TobleFood on the board
     public TobleGem GetGem(int x, int y)
     {
         return tiles[x, y].GetComponent<TobleGem>();
@@ -511,35 +601,6 @@ public class BoardManager : MonoBehaviour
         Verify_Board();
     }
 
-    // Function that checks if this board has any possible moves
-    public void Verify_Board()
-    {
-        List<Possible_Match> p = Possible_Matches();
-        if (p.Count > 0) // If it does
-        {
-            // Highlight a possible match
-            if (pm != null)
-            {
-                StopAllCoroutines();
-                pm.NoHighlight();
-            }
-            StartCoroutine(p[Random.Range(0, p.Count)].Coroutine_HighlightIt());
-        }
-        else
-        {
-            // If it does not, destroy the current board and create a new one
-            DestroyBoard();
-            Instantiate();
-        }
-    }
-
-    // Function that removes from play every TobleFood on the board
-    public void DestroyBoard()
-    {
-        for (int x = 0; x < 8; x++)
-            for (int y = 0; y < 8; y++)
-                Destroy(tiles[x, y]);
-    }
 }
 
 // Class to keep track of the swapped Gems 
@@ -589,7 +650,7 @@ public class Possible_Match
         BoardManager.instance.pm = this;
     }
 
-    // Function that waits 15 seconds to show the hint
+    // Function that waits 10 seconds to show the hint
     public IEnumerator Coroutine_HighlightIt()
     {
         BoardManager.instance.pm = this;
@@ -601,10 +662,21 @@ public class Possible_Match
     // Function that deactivates the current hint
     public void NoHighlight()
     {
+        if (BoardManager.instance.pm != null)
+        {
+            first.Gem_a.SetBool("Highlight", false);
+            second.Gem_a.SetBool("Highlight", false);
+            third.Gem_a.SetBool("Highlight", false);
+
+            BoardManager.instance.pm = null;
+        }
+    }
+
+    // Function that just turn off the Highlight 
+    public void DyingLight()
+    {
         first.Gem_a.SetBool("Highlight", false);
         second.Gem_a.SetBool("Highlight", false);
         third.Gem_a.SetBool("Highlight", false);
-
-        BoardManager.instance.pm = null;
     }
 }
