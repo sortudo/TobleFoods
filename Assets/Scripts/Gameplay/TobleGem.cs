@@ -109,7 +109,6 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             updating = false;
             return false;
         }
-        
     }
 
     // Function that move to a point

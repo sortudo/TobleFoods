@@ -6,8 +6,7 @@ using UnityEngine;
 public class SFXManager : MonoBehaviour
 {
     public static SFXManager instance = null;
-
-    private AudioSource sfx;
+    public AudioSource sfx;
     void Awake()
     {
         if (instance == null)

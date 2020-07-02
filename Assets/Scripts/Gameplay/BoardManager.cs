@@ -25,7 +25,7 @@ public class BoardManager : MonoBehaviour
     public AudioClip Clear;
     public AudioClip Swap;
     public AudioClip Shuffle;
-
+    public AudioClip Shuffle_voice;
 
     public int[] fills; // The number of empty spaces in which column
     public int points_move; // Points in a single swap
@@ -60,7 +60,7 @@ public class BoardManager : MonoBehaviour
         Align_BoardM();
     }
 
-    void LateUpdate()
+    void Update()
     {
         // Update TobleFoods if they need to keep or stop moving
         FinishedUpdating = new List<TobleGem>();
@@ -109,10 +109,14 @@ public class BoardManager : MonoBehaviour
                 if (itFlipped)
                 {
                     FlipGems(gem, flippedGem, false, false); // Swap them back
+
                     // Reset hint
-                    pm.DyingLight();
                     StopAllCoroutines();
-                    StartCoroutine(pm.Coroutine_HighlightIt());
+                    if (pm != null)
+                    {
+                        pm.DyingLight();
+                        StartCoroutine(pm.Coroutine_HighlightIt());
+                    }
                 }
                     
             }
@@ -174,6 +178,15 @@ public class BoardManager : MonoBehaviour
         destroyed.RemoveAt(0);
         if (destroyed.Count == 0)
         {
+            // Play Narrator voice for each combo
+            if (combo == 3)
+                Narrator.instance.PlayCombo(0);
+            else if (combo == 4)
+                Narrator.instance.PlayCombo(1);
+            else if (combo == 5)
+                Narrator.instance.PlayCombo(2);
+            else if (combo > 5)
+                Narrator.instance.PlayCombo(3);
 
             ApplyGravityToTobleFood();
             StatusManager.instance.UpdateScore(points_move);
@@ -212,10 +225,12 @@ public class BoardManager : MonoBehaviour
         }
     }
 
+    //  Function that destroys and creates a brand new board
     public IEnumerator ResetBoard()
     {
         reseting = true;
         pm = null;
+        Narrator.instance.PlayNarrator(Shuffle_voice, false);
         yield return new WaitForSeconds(1);
         StatusSound.instance.PlayStatus(Shuffle);
         DestroyBoard();

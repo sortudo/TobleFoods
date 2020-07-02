@@ -21,8 +21,10 @@ public class StatusManager : MonoBehaviour
     public bool gameover;
 
     // Clips
-    public AudioClip NextRound_clip;
-    public AudioClip EndGame_clip;
+    public AudioClip NextRound;
+    public AudioClip GameOver;
+    public AudioClip NextRound_voice;
+    public AudioClip GameOver_voice;
 
     // Progress bar
     private int current_points;
@@ -61,11 +63,27 @@ public class StatusManager : MonoBehaviour
 
     private void Update()
     {
+        // If the game is running
         if (timer > 0 && !paused)
         {
+            
             timer -= Time.deltaTime;
-            if (timer < 0)
-                EndGame(); 
+            // If the timer is over it will start the end game
+            if (timer <= 0)
+            {
+                SoundSpeed(1.0f);
+                EndGame();
+            }      
+            else if(timer <= 15) // If there are 15 seconds left, the background music will speed up
+            {
+                SoundSpeed(1.0f + (0.5f * ((15 - timer) / 15)));
+            }
+            else
+            {
+                // If the music pitch is distorted, bring back to normal
+                if (Music.instance.music.pitch < 1.0f)
+                    Music.instance.music.pitch = Music.instance.music.pitch + Time.deltaTime;
+            }
 
             // Set timer string
             minutes = Mathf.FloorToInt(timer / 60F);
@@ -74,11 +92,18 @@ public class StatusManager : MonoBehaviour
             timer_ui.text = nicetime;
         }
         
+        // The background music will slow down when the game is paused
+        if (Music.instance.music.pitch > 0.5f && paused && timer >= 15)
+        {
+            Music.instance.music.pitch = Music.instance.music.pitch - Time.deltaTime;
+        }
+
         // If the game is over
         if(gameover)
         {
             Music.instance.music.Stop();
-            StatusSound.instance.PlayStatus(EndGame_clip);
+            StatusSound.instance.PlayStatus(GameOver);
+            Narrator.instance.PlayNarrator(GameOver_voice, true);
             gameover = false;
             timer_ui.text = "0:00";
             GameOver_canvas.SetActive(true);
@@ -91,9 +116,11 @@ public class StatusManager : MonoBehaviour
         }
 
         // If the player reached the goal
-        if (progress.value == 1.0f)
+        if (progress.value == 1.0f && !gameover)
         {
-            StatusSound.instance.PlayStatus(NextRound_clip);
+            SoundSpeed(1.0f);
+            StatusSound.instance.PlayStatus(NextRound);
+            Narrator.instance.PlayNarrator(NextRound_voice, true);
 
             // The difficulty of each round increase depending on round number and time left
             goal += 1000 + (int.Parse(round_ui.text)*500) + (int)(timer*10);
@@ -105,6 +132,7 @@ public class StatusManager : MonoBehaviour
             score_ui.text = current_points.ToString();
             progress.value = (float)progress_points / goal;
 
+            // Set next round
             next_round = int.Parse(round_ui.text) + 1;
             round_ui.text = next_round.ToString();
         }
@@ -137,5 +165,14 @@ public class StatusManager : MonoBehaviour
     {
         timer = 0;
         gameover = true;
+    }
+
+    // Function that change the pitch of game' sounds
+    public void SoundSpeed(float pitch)
+    {
+        Music.instance.music.pitch = pitch;
+        SFXManager.instance.sfx.pitch = pitch;
+        StatusSound.instance.status.pitch = pitch;
+        Narrator.instance.narrator.pitch = pitch;
     }
 }

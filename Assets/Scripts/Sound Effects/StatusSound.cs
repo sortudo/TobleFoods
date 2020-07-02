@@ -6,8 +6,7 @@ using UnityEngine;
 public class StatusSound : MonoBehaviour
 {
     public static StatusSound instance = null;
-
-    private AudioSource status;
+    public AudioSource status;
     void Awake()
     {
         if (instance == null)
