@@ -41,7 +41,6 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
         UIManager.instance.ScreenSizeChangeEvent += Align_Gem;
         Align_Gem();
-
     }
 
     // Function that update SO, sprite and color's outline
@@ -68,6 +67,7 @@ public class TobleGem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     // Function that will be called in the end of Disappear animation, destroying this TobleFood
     public void DestroyGameObject()
     {
+        UIManager.instance.ScreenSizeChangeEvent -= Align_Gem;
         Destroy(this.gameObject);
     }
 

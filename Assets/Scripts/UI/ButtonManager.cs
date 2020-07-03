@@ -23,7 +23,8 @@ public class ButtonManager : MonoBehaviour
     // NoHints and YesHints are used to prevent hints during pause 
     public void NoHints()
     {
-        BoardManager.instance.pm.DyingLight();
+        if (BoardManager.instance.pm != null)
+            BoardManager.instance.pm.DyingLight();
         BoardManager.instance.StopAllCoroutines();
     }
 
@@ -36,6 +37,7 @@ public class ButtonManager : MonoBehaviour
     // Function that plays background music
     public void PlayMusic()
     {
+        Music.instance.music.pitch = 1.0f;
         Music.instance.music.Play();
     }
 }

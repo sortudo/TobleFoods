@@ -35,7 +35,6 @@ public class UIManager : MonoBehaviour
         {
             this.lastScreenSize = screenSize;
             OnScreenSizeChange();
-            
         }
     }
 }
