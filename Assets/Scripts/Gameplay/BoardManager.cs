@@ -97,7 +97,7 @@ public class BoardManager : MonoBehaviour
                 flip_connected = GetMatching(flippedGem);
 
                 // Adds moved TobleFood if there is a match
-                if (flip_connected.Count > 1)
+                if(flip_connected.Count>1)
                     flip_connected.Add(flippedGem);
                 connected.AddRange(flip_connected);
             }
@@ -124,8 +124,10 @@ public class BoardManager : MonoBehaviour
             {
                 SFXManager.instance.PlaySFX(Clear);
 
+                StopAllCoroutines(); // Matches stop shuffle
+
                 // Reset Hint
-                if(pm != null)
+                if (pm != null)
                     pm.NoHighlight();
 
                 // Destroy matching TobleFoods that are connected
@@ -136,6 +138,8 @@ public class BoardManager : MonoBehaviour
                         tobleGem.Gem_a.SetBool("DestroyIt", true);
                         tobleGem.transform.SetAsLastSibling();
                         tobleGem.Gem_p.gameObject.SetActive(true);
+
+                        
 
                         // Points will be increased each round
                         int economy = (tobleGem.TobleSO.points + ((StatusManager.instance.next_round - 1) * tobleGem.TobleSO.points));
@@ -221,6 +225,7 @@ public class BoardManager : MonoBehaviour
         else
         {
             // If it does not, destroy the current board and create a new one
+            
             StartCoroutine(ResetBoard());
         }
     }
@@ -230,9 +235,10 @@ public class BoardManager : MonoBehaviour
     {
         reseting = true;
         pm = null;
-        Narrator.instance.PlayNarrator(Shuffle_voice, false);
         yield return new WaitForSeconds(1);
+        Narrator.instance.PlayNarrator(Shuffle_voice, false);
         StatusSound.instance.PlayStatus(Shuffle);
+        yield return new WaitForSeconds(0.5f);
         DestroyBoard();
         yield return new WaitForSeconds(1);
         CreateBoard();
@@ -311,12 +317,13 @@ public class BoardManager : MonoBehaviour
                         p_poss.Add(p);
                     // Check for L shape
                     if(dir.x == 0)
-                    {                           
+                    {
                         Vector2 checkRight = new Vector2(c.x, c.y) + dir + new Vector2(1, 0);  //     | - | p |
                         p = Add_Poss(checkRight, c, p_vh);                                     //     | c |    
                         if (p != null)                                                         //     | g |
                             p_poss.Add(p);
 
+                        print(dir + new Vector2(-1, 0));
                         Vector2 checkLeft = new Vector2(c.x, c.y) + dir + new Vector2(-1, 0);  // | p | - | 
                         p = Add_Poss(checkLeft, c, p_vh);                                      //     | c |
                         if (p != null)                                                         //     | g | 
@@ -408,6 +415,9 @@ public class BoardManager : MonoBehaviour
     public List<TobleGem> GetMatching(TobleGem Gem)
     {
         List<TobleGem> connected = new List<TobleGem>();
+
+        if (Gem.gameObject.tag == "TobleDestroyed")
+            return connected;
 
         connected.AddRange(GetMatching_Vertical(Gem));
         connected.AddRange(GetMatching_Horizontal(Gem));
