@@ -28,3 +28,7 @@ Features that I want to implement:
   - [X] Narrator will say if it's time to shuffle, to go to the next round or end the game
   - [X] Narrator is also responsible to inform the player about the combo state
   - [X] A progress bar to indicate how is the score and how is the progress to the next round
+
+Music: Hyperfun Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 3.0 License
+http://creativecommons.org/licenses/by/3.0/
